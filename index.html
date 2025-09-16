@@ -1,1 +1,380 @@
-<sdfasdfasd
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lückensätze – Wohnen</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #fff;
+      text-align: center;
+      height: 100vh;
+      overflow: hidden;
+      overscroll-behavior: none;
+      touch-action: pan-x;
+    }
+
+    img.logo {
+      width: 120px;
+      margin-top: 20px;
+    }
+
+    .start-screen, .question-screen, .result-screen {
+      display: none;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .start-screen {
+      display: flex;
+    }
+
+    .start-screen h1 {
+      color: white;
+      font-size: 1.8em;
+      margin: 20px 0;
+    }
+
+    .start-button {
+      padding: 12px 24px;
+      font-size: 1em;
+      background-color: #e63946;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .start-button:hover {
+      background-color: #c62828;
+    }
+
+    .question-screen {
+      display: flex;
+      position: relative;
+    }
+
+    .question {
+      margin-bottom: 30px;
+    }
+
+    .question p {
+      font-size: 1.2em;
+      margin-bottom: 15px;
+    }
+
+    #progress-text {
+      margin-bottom: 10px;
+      font-weight: bold;
+      font-size: 1em;
+    }
+
+    .answers {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 300px;
+      margin: 0 auto 20px auto;
+    }
+
+    .answers button {
+      padding: 10px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    .answers button:hover {
+      background-color: #0056b3;
+    }
+
+    .answers button:disabled {
+      cursor: default;
+      opacity: 0.8;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      width: 300px;
+      margin: 0 auto;
+    }
+
+    .nav-buttons button {
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      background-color: #555;
+      color: white;
+      cursor: pointer;
+    }
+
+    .nav-buttons button:hover {
+      background-color: #777;
+    }
+
+    .result-screen {
+      display: none;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 20px;
+      overflow-y: auto; /* ✨ Scrollen nur auf Auswertungsseite erlauben */
+    }
+
+    .result-screen h2 {
+      font-size: 1.5em;
+    }
+
+    .result-screen p {
+      margin-top: 10px;
+      font-size: 1em;
+    }
+
+    .corrections {
+      text-align: left;
+      max-width: 500px;
+      margin: 20px auto;
+      font-size: 0.95em;
+    }
+
+    .corrections p {
+      margin: 8px 0;
+    }
+
+    .progress-bar {
+      height: 10px;
+      background: #444;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .progress {
+      height: 10px;
+      background: green;
+      width: 0%;
+    }
+
+    .social-icons {
+      margin-top: 20px;
+    }
+
+    .social-icons a {
+      margin: 0 10px;
+      color: white;
+      text-decoration: none;
+      font-size: 1.5em;
+    }
+  </style>
+</head>
+<body>
+  <div class="start-screen">
+    <img src="logo.png" alt="Logo" class="logo">
+    <h1>Swipe left or right!</h1>
+    <button class="start-button" onclick="startQuiz()">Los geht’s!</button>
+  </div>
+
+  <div class="question-screen">
+    <p id="progress-text"></p>
+    <div class="progress-bar"><div class="progress" id="progress-bar"></div></div>
+    <div class="question" id="question-container"></div>
+    <div class="nav-buttons">
+      <button onclick="prevQuestion()">Zurück</button>
+      <button onclick="nextQuestion()">Weiter</button>
+    </div>
+  </div>
+
+  <div class="result-screen">
+    <h2 id="score-text"></h2>
+    <div class="corrections" id="correction-list"></div>
+    <button class="start-button" onclick="restartQuiz()">Nochmal spielen</button>
+    <div class="social-icons">
+      <a href="https://www.jazzupyourgerman.com" target="_blank">🌐</a>
+      <a href="https://www.instagram.com/jazzupyourgerman/" target="_blank">📸</a>
+    </div>
+  </div>
+<script>
+const questions = [
+  { "text": "Übersetze: streicheln", "options": ["a certa", "a mângâia"], "correct": 1 },
+  { "text": "Übersetze: streiten", "options": ["a certa-se", "a mângâia"], "correct": 0 },
+  { "text": "Übersetze: Ich kann mir vorstellen, meinen Job zu wechseln.", "options": ["Îmi place foarte mult jobul meu.", "Îmi pot imagina să-mi schimb jobul."], "correct": 1 },
+  { "text": "Übersetze: Ich habe mir das gut überlegt.", "options": ["M-am gândit bine la asta.", "Am uitat de asta."], "correct": 0 },
+  { "text": "Übersetze: die Zielgruppe", "options": ["publicitatea", "grupul țintă"], "correct": 1 },
+  { "text": "Übersetze: die potentiellen Kunden", "options": ["clienții potențiali", "angajații"], "correct": 0 },
+  { "text": "Übersetze: Zeit für sich haben", "options": ["a pierde timpul", "a avea timp pentru sine"], "correct": 1 },
+  { "text": "Übersetze: die Verpflichtung", "options": ["obligația", "odihna"], "correct": 0 },
+  { "text": "Übersetze: die Pflicht", "options": ["plăcerea", "datoria"], "correct": 1 },
+  { "text": "Übersetze: die Pflege", "options": ["îngrijirea", "uitarea"], "correct": 0 },
+  { "text": "Übersetze: Niemand hindert mich an etwas.", "options": ["Nimeni nu mă ajută la ceva.", "Nimeni nu mă împiedică de la ceva."], "correct": 1 },
+  { "text": "Übersetze: Niemand hindert mich daran.", "options": ["Nimeni nu mă împiedică de asta.", "Nimeni nu mă încurajează cu asta."], "correct": 0 },
+  { "text": "Übersetze: sich mit Freunden treffen", "options": ["a se întâlni cu prietenii", "a uita de prieteni"], "correct": 0 },
+  { "text": "Übersetze: die Location", "options": ["locația", "întâlnirea"], "correct": 0 },
+  { "text": "Übersetze: der Standort", "options": ["situația", "amplasamentul"], "correct": 1 },
+  { "text": "Übersetze: sich etwas ansehen", "options": ["a pierde ceva", "a privi ceva"], "correct": 1 },
+  { "text": "Übersetze: Siehst du dir gern Filme an?", "options": ["Îți place să te uiți la filme?", "Îți place să citești cărți?"], "correct": 0 },
+  { "text": "Übersetze: etwas mieten", "options": ["a închiria ceva", "a cumpăra ceva"], "correct": 0 },
+  { "text": "Übersetze: etwas anmieten", "options": ["a pierde ceva", "a închiria ceva"], "correct": 1 },
+  { "text": "Übersetze: Ich miete eine Wohnung.", "options": ["Vând un apartament.", "Închiriez un apartament."], "correct": 1 },
+  { "text": "Übersetze: Ich habe eine Gewerbefläche angemietet.", "options": ["Am închiriat un spațiu comercial.", "Am vândut un spațiu comercial."], "correct": 0 },
+  { "text": "Übersetze: den Vertrag kündigen", "options": ["a rezilia contractul", "a semna contractul"], "correct": 0 },
+  { "text": "Übersetze: dem Mitarbeiter kündigen", "options": ["a concedia angajatul", "a angaja angajatul"], "correct": 0 },
+  { "text": "Übersetze: Der Chef kündigt mir.", "options": ["Șeful mă angajează.", "Șeful mă concediază."], "correct": 1 },
+  { "text": "Übersetze: Mir wird gekündigt.", "options": ["Sunt promovat.", "Sunt concediat."], "correct": 1 },
+  { "text": "Übersetze: Mir wurde gekündigt.", "options": ["Am fost concediat.", "Am fost angajat."], "correct": 0 },
+  { "text": "Übersetze: Uns wurde gekündigt.", "options": ["Am fost concediați.", "Am fost angajați."], "correct": 0 },
+  { "text": "Übersetze: Ihr seht euch gern euren Lieblingsfilm an.", "options": ["Uitați filmul vostru preferat.", "Vă uitați cu plăcere la filmul vostru preferat."], "correct": 1 },
+  { "text": "Übersetze: Sie sehen sich gern ihren Lieblingsfilm an.", "options": ["Le place să se uite la filmul lor preferat.", "Își pierd filmul lor preferat."], "correct": 0 },
+  { "text": "Übersetze: Wir treffen uns mit unseren Freunden.", "options": ["Îi pierdem pe prietenii noștri.", "Ne întâlnim cu prietenii noștri."], "correct": 1 },
+  { "text": "Übersetze: Ihr trefft euch mit euren Freunden.", "options": ["Vă întâlniți cu prietenii voștri.", "Uitați de prietenii voștri."], "correct": 0 },
+  { "text": "Übersetze: Sie treffen sich mit ihren Freunden.", "options": ["Își pierd prietenii lor.", "Se întâlnesc cu prietenii lor."], "correct": 1 },
+  { "text": "Übersetze: Ich bin gefahren.", "options": ["Am condus / Am mers.", "M-am oprit."], "correct": 0 },
+  { "text": "Übersetze: weil ich nach Rumänien gefahren bin.", "options": ["pentru că am mers în România.", "pentru că ..."], "correct": 0 }
+];
+    let currentQuestion = 0;
+    let score = 0;
+    let incorrectAnswers = [];
+    let userAnswers = [];
+
+    function startQuiz() {
+      document.querySelector('.start-screen').style.display = 'none';
+      document.querySelector('.question-screen').style.display = 'flex';
+      document.body.style.overflow = 'hidden'; // ✨ Scrollen verhindern
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const container = document.getElementById('question-container');
+      const progressText = document.getElementById('progress-text');
+      const progressBar = document.getElementById('progress-bar');
+      container.innerHTML = '';
+
+      const q = questions[currentQuestion];
+      progressText.textContent = `Frage ${currentQuestion + 1} von ${questions.length}`;
+      progressBar.style.width = `${((currentQuestion) / questions.length) * 100}%`;
+
+      const questionText = document.createElement('p');
+      questionText.textContent = q.text;
+      container.appendChild(questionText);
+
+      const answerButtons = document.createElement('div');
+      answerButtons.classList.add('answers');
+
+      q.options.forEach((option, index) => {
+        const btn = document.createElement('button');
+        btn.textContent = option;
+        btn.onclick = () => handleAnswer(btn, index, answerButtons);
+        answerButtons.appendChild(btn);
+      });
+
+      container.appendChild(answerButtons);
+    }
+
+    function handleAnswer(clickedButton, index, buttonContainer) {
+      const q = questions[currentQuestion];
+      const buttons = buttonContainer.querySelectorAll('button');
+
+      buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === q.correct) {
+          btn.style.backgroundColor = 'green';
+        } else if (btn === clickedButton) {
+          btn.style.backgroundColor = 'red';
+        } else {
+          btn.style.backgroundColor = '#007bff';
+        }
+      });
+
+      userAnswers[currentQuestion] = index;
+
+      if (index === q.correct) {
+        score++;
+      } else {
+        incorrectAnswers.push({ question: q.text, correctAnswer: q.options[q.correct] });
+      }
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        showQuestion();
+      } else if (currentQuestion === questions.length - 1) {
+        currentQuestion++;
+        showResult();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        showQuestion();
+      }
+    }
+
+    function showResult() {
+      document.querySelector('.question-screen').style.display = 'none';
+      const resultScreen = document.querySelector('.result-screen');
+      resultScreen.style.display = 'flex';
+      document.body.style.overflow = 'auto'; // ✨ Scrollen auf Auswertungsseite erlauben
+
+      const scoreText = document.getElementById('score-text');
+      scoreText.textContent = `Du hast ${score} von ${questions.length} richtig.`;
+
+      const correctionList = document.getElementById('correction-list');
+      correctionList.innerHTML = '';
+
+      questions.forEach((q, i) => {
+        const p = document.createElement('p');
+        const isCorrect = userAnswers[i] === q.correct;
+        const status = isCorrect ? "✅ Richtig" : `❌ Falsch – Richtige Antwort: ${q.options[q.correct]}`;
+        p.innerHTML = `<strong>Frage ${i + 1}:</strong> ${q.text.replace("___", "_____")}<br>${status}`;
+        correctionList.appendChild(p);
+      });
+    }
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      incorrectAnswers = [];
+      userAnswers = [];
+
+      document.querySelector('.result-screen').style.display = 'none';
+      document.querySelector('.start-screen').style.display = 'flex';
+      document.body.style.overflow = 'hidden'; // ✨ Scrollen wieder deaktivieren
+    }
+
+    // Swipe gesture support
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    document.addEventListener('touchstart', e => {
+      touchStartX = e.changedTouches[0].screenX;
+    });
+
+    document.addEventListener('touchend', e => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    });
+
+    function handleSwipe() {
+      if (touchEndX < touchStartX - 50) {
+        nextQuestion();
+      }
+      if (touchEndX > touchStartX + 50) {
+        prevQuestion();
+      }
+    }
+  </script>
+</body>
+</html>
